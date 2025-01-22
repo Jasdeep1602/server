@@ -1,19 +1,23 @@
-// const { Configuration, OpenAIApi } = require('openai');
+// const axios = require('axios');
 // require('dotenv').config();
 
-// const openai = new OpenAIApi(
-//   new Configuration({
-//     apiKey: process.env.OPENAI_API_KEY,
-//   })
-// );
+// // Create a pre-configured axios instance
+// const huggingFaceClient = axios.create({
+//   baseURL: 'https://api-inference.huggingface.co/models',
+//   headers: {
+//     Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+//     'Content-Type': 'application/json',
+//   },
+// });
 
-// module.exports = openai;
+// module.exports = huggingFaceClient;
 
-const OpenAI = require('openai');
-require('dotenv').config();
+// const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Make sure this key exists in your .env file
-});
+// const genAI = new GoogleGenerativeAI("YOUR_API_KEY");
+// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-module.exports = openai;
+// const prompt = "Explain how AI works";
+
+// const result = await model.generateContent(prompt);
+// console.log(result.response.text());

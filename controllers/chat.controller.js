@@ -1,6 +1,11 @@
+// Import required modules
 const chat = require('../models/chat.model');
-const openai = require('../utils/openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
+
+// Initialize Google Generative AI client
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 const chatCtrl = {
   chat: async (req, res) => {
@@ -11,19 +16,18 @@ const chatCtrl = {
     }
 
     try {
-      // Get response from OpenAI
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo', // Make sure to use a valid model name
-        messages: [
-          {
-            role: 'user',
-            content: message,
-          },
-        ],
-        max_tokens: 150,
-      });
+      let botResponse;
 
-      const botResponse = completion.choices[0].message.content.trim();
+      // Generate response using Google Generative AI
+      try {
+        const googleResponse = await model.generateContent(message);
+        botResponse = googleResponse.response.text();
+      } catch (googleError) {
+        console.error('Google Generative AI Error:', googleError.message);
+        return res.status(500).json({
+          error: 'Failed to generate response using Google Generative AI.',
+        });
+      }
 
       // Save chat history to MongoDB
       const chats = new chat({ userMessage: message, botResponse });
@@ -33,7 +37,11 @@ const chatCtrl = {
       res.json({ userMessage: message, botResponse });
     } catch (error) {
       console.error('Error processing chat:', error);
-      res.status(500).json({ error: 'Something went wrong' });
+      res.status(500).json({
+        error: 'Something went wrong',
+        details:
+          process.env.NODE_ENV === 'development' ? error.message : undefined,
+      });
     }
   },
 };
